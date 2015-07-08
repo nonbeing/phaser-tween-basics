@@ -1,0 +1,15 @@
+{
+	"folders":
+	[
+		{
+			"path": "."
+		}
+	],
+
+    "settings": {
+          "sublime-view-in-browser": {
+             "baseUrl": "http://localhost",
+             "basePath": "."
+          }
+    }
+}

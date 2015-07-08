@@ -1,0 +1,5 @@
+{
+  "loadEagerly": ["lib/js/phaser/phaser.js"],
+  "plugins": {},
+  "dependencyBudget":5000000
+}
