@@ -1,52 +1,79 @@
-var mode = {
+var game = new Phaser.Game(800, 600, Phaser.AUTO, 'game', { preload: preload, create: create, update: update });
+var mode;
+var mytween;
+var einstein_sprite;
+
+var GameStates = {
+    // game modes
     TWEEN: 0,
-    TEXT: 1
+    TIME: 1
 };
 
 
-var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: preload, create: create });
 
 function preload() {
-
-    //  You can fill the preloader with as many assets as your game requires
-
-    //  Here we are loading an image. The first parameter is the unique
-    //  string by which we'll identify the image later in our code.
-
-    //  The second parameter is the URL of the image (relative)
     game.load.image('einstein', 'assets/ra_einstein.png');
 }
 
-function create() {
 
-    var sprite = game.add.sprite(-300, 0, 'einstein');
+
+function create() {
+    einstein_sprite = game.add.sprite(-300, 0, 'einstein');
 
     //  Here we create a tween on the sprite created above
-    var mytween = game.add.tween(sprite);
+    mytween = game.add.tween(einstein_sprite);
 
     //  The object defines the properties to tween.
-    //  In this case it will move to x 600
-    //  The 6000 is the duration in ms - 6000ms = 6 seconds
+    //  In this case it will move to x: 500
+    //  The 3000 is the duration in ms
     mytween.to({ x: 500 }, 3000);
-
-    //  And this starts it going
+    mode = GameStates.TWEEN;
+    console.log("[DEBUG] mode is:" + mode);
+    console.log("[DEBUG] Starting mytween...");
     mytween.start();
-
-    var mytext = "phaser -\n with a sprinkle of \n pixi dust";
-    var style = {font: "25px Arial", fill: "#bbccdd", align: "center"};
-    var t = game.add.text(game.world.centerX, game.world.centerY, mytext, style);
-    t.anchor.set(0.5, 0.5);
-
 }
 
+    
+
 function update() {
-    if(mytween.isRunning == true) {
-        console.log("tween has finished"); // do nothing, just wait for it to finish
-       
-        // var mytext = "phaser -\n with a sprinkle of \n pixi dust";
-        // var style = {font: "25px Arial", fill: "#bbccdd", align: "center"};
-        // var t = game.add.text(game.world.centerX, game.world.centerY, mytext, style);
-        // t.anchor.set(0.5, 0.5);
-        // t.
+    switch(mode) 
+    {
+        case GameStates.TWEEN:
+
+            var tweening = mytween.isRunning;
+            // console.log("[DEBUG] in [TWEEN MODE] is tween running:" + tweening);
+
+            if(!tweening) {  // change mode only when the tween has finished
+                einstein_sprite.destroy();
+                mode = GameStates.TIME;
+            }
+            break;
+
+        case GameStates.TIME:
+            // print the time and then pause
+            var epoch_string = "Current Unix Epoch Time \n (in milliseconds) \n" 
+                + game.time.time;
+            var gametime_string = "\n\nTime elapsed since game start \n (in milliseconds) \n" 
+                + game.time.now;
+            var time_style = {font: "25px Arial", fill: "#bbccdd", align: "center"};
+            var time_text = game.add.text(game.world.centerX, game.world.centerY, 
+                epoch_string+gametime_string, time_style);
+            time_text.anchor.set(0.5, 0.5);
+
+            var refresh_string = "Press any key to refresh the time...";
+            var refresh_style = {font: "14px Consolas", fill: "#bbccdd", align: "center"}
+            var refresh_text = game.add.text(game.world.centerX, game.world.centerY+150, 
+                refresh_string, refresh_style);
+            refresh_text.anchor.set(0.5, 0.5);
+
+            game.paused = true;
+
+            game.input.keyboard.onDownCallback = function(e) {
+                time_text.destroy();
+                refresh_text.destroy();
+                console.log("[DEBUG] You pressed:'" + e.keyCode);
+                game.paused = false; 
+            }
+            break;
     }
 }
